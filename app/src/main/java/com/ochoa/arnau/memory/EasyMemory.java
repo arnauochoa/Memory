@@ -2,11 +2,18 @@ package com.ochoa.arnau.memory;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.material.joanbarroso.flipper.CoolImageFlipper;
+
+import java.util.List;
+
+import butterknife.BindViews;
+import butterknife.OnClick;
 
 public class EasyMemory extends AppCompatActivity implements View.OnClickListener{
 
@@ -29,6 +36,8 @@ public class EasyMemory extends AppCompatActivity implements View.OnClickListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_easy_memory);
+
+
 
         card0 = (ImageView) findViewById(R.id.card0);
         card1 = (ImageView) findViewById(R.id.card1);
@@ -80,8 +89,7 @@ public class EasyMemory extends AppCompatActivity implements View.OnClickListene
         board = new Board(getResources(), drawables, cardBack, flipper);
     }
 
-    @Override
-    public void onClick(View v) {
+    public void onClick (View v) {
         switch (v.getId()){
             case R.id.card0:
                 win = board.select(v, 0);
@@ -135,7 +143,8 @@ public class EasyMemory extends AppCompatActivity implements View.OnClickListene
 
         if (win){
             points = board.getPoints();
-            Toast.makeText(getApplicationContext(), "Congratulations!", Toast.LENGTH_LONG);
+            Toast.makeText(getApplicationContext(), "Congratulations! You did it in " + String.valueOf(points) + " trials", Toast.LENGTH_LONG).show();
+            Log.d("WIN","CONGRATULATIONS!!");
         }
     }
 }

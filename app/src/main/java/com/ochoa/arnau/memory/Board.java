@@ -89,9 +89,7 @@ public class Board {
                     lastCard = thisCard;
                     lastCardView = thisCardView;
                 }
-
                 mustWait = true;
-                points++;
             }
         }
         return win;
@@ -101,8 +99,10 @@ public class Board {
         boolean win = false;
         if(!isFirst) {
             canClick = false;
+            points++;
             if (lastCard.getValue() == thisCard.getValue()) {
                 matchedPairs++;
+                canClick = true;
             } else {
                 new Handler().postDelayed(new Runnable() {
                     @Override
