@@ -1,6 +1,9 @@
 package com.ochoa.arnau.memory;
 
 import android.content.res.Resources;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -15,21 +18,38 @@ import java.util.List;
  */
 public class Board {
 
-    int points, matchedPairs;
-    boolean isFirst = true;
+    private int points, matchedPairs;
+    private boolean isFirst = true;
 
-    int pairs;
+    private int pairs;
 
-    Card[] cards;
-    Card lastCard = new Card(0);
+    private Card[] cards;
+    private Card lastCard = new Card(0);
+    private Card thisCard = new Card(0);
 
-    CoolImageFlipper flipper;
-    Resources resources;
+    private View lastCardView;
+    private View thisCardView;
 
-    Integer cardBack;
-    Integer[] drawables; //Array with all drawables id
-    Integer[] values; //Drawables after duplicate values and shuffle
+    private CoolImageFlipper flipper;
+    private Resources resources;
 
+    private Integer cardBack;
+    private Integer[] drawables; //Array with all drawables id
+    private Integer[] values; //Drawables after duplicate values and shuffle
+
+
+   Thread hideThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            flip(thisCardView, thisCard);
+            flip(lastCardView, lastCard);
+        }
+    });
 
     public Board(Resources resources, Integer[] drawables, Integer cardBack, CoolImageFlipper flipper) {
         this.drawables = drawables;
@@ -47,6 +67,10 @@ public class Board {
         setCards();
     }
 
+    public int getPoints() {
+        return points;
+    }
+
     public void setCards() {
 
         for(int i = 0; i < drawables.length ; i++){
@@ -61,41 +85,56 @@ public class Board {
         for (int i = 0; i < 2*pairs; i++){
             cards[i] = new Card(values[i]);
         }
+
+        lastCard.setValue(0);
     }
 
     public boolean select(View v,int pos){
         boolean win = false;
-        if (!cards[pos].isSelected()){
-            flip(v, cards[pos]);
-            win = check(v, cards[pos]);
+        thisCard = cards[pos];
+        thisCardView = v;
+        if (!thisCard.isSelected()){
+            flip(thisCardView, thisCard);
+            win = check();
+            lastCard = thisCard;
+            lastCardView = thisCardView;
             points++;
         }
         return win;
     }
 
-    private boolean check(View v, Card thisCard) {
+    private boolean check() {
         boolean win = false;
-        if (lastCard.getValue() == thisCard.getValue()){
-            matchedPairs++;
-        }else{
-            flip(v, thisCard);
-            flip(v, lastCard);
+        if((lastCard.getValue() != 0) && !isFirst) {
+            if (lastCard.getValue() == thisCard.getValue()) {
+                matchedPairs++;
+            } else {
+
+                // TODO: metodo que nos dijo Hus
+/*                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        flip(thisCardView, thisCard);
+                        flip(lastCardView, lastCard);
+                    }
+                }, 1000);*/
+
+                hideThread.start();
+            }
+            if (matchedPairs == (values.length/2)){
+                win = true;
+            }
         }
         isFirst = !isFirst;
-
-        if (matchedPairs == (values.length/2)){
-            win = true;
-        }
         return win;
     }
 
-    private void flip(View v,Card thisCard) {
-        if(thisCard.isSelected()){
+    private void flip(View v,Card card) {
+        if(card.isSelected()){
             flipper.flipImage(resources.getDrawable(cardBack), (ImageView) v);
         }else{
-            int val = thisCard.getValue();
-            flipper.flipImage(resources.getDrawable(val), (ImageView) v);
+            flipper.flipImage(resources.getDrawable(card.getValue()), (ImageView) v);
         }
-        thisCard.setSelected(!thisCard.isSelected());
+        card.setSelected(!card.isSelected());
     }
 }

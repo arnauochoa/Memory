@@ -5,15 +5,15 @@ package com.ochoa.arnau.memory;
  */
 public class Card {
 
-    int value;
+    Integer value;
 
     boolean selected = false;
 
-    public Card(int value) {
+    public Card(Integer value) {
         this.value = value;
     }
 
-    public int getValue() {
+    public Integer getValue() {
         return value;
     }
 

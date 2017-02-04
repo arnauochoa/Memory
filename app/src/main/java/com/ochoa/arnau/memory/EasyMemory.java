@@ -11,6 +11,7 @@ import com.example.material.joanbarroso.flipper.CoolImageFlipper;
 public class EasyMemory extends AppCompatActivity implements View.OnClickListener{
 
     int pairs = 8;
+    int points;
 
     boolean win = false;
 
@@ -133,6 +134,7 @@ public class EasyMemory extends AppCompatActivity implements View.OnClickListene
         }
 
         if (win){
+            points = board.getPoints();
             Toast.makeText(getApplicationContext(), "Congratulations!", Toast.LENGTH_LONG);
         }
     }
