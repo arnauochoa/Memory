@@ -20,6 +20,8 @@ public class Board {
 
     private int points, matchedPairs;
     private boolean isFirst = true;
+    private boolean mustWait = true;
+    private boolean canClick = true;
 
     private int pairs;
 
@@ -37,19 +39,6 @@ public class Board {
     private Integer[] drawables; //Array with all drawables id
     private Integer[] values; //Drawables after duplicate values and shuffle
 
-
-   Thread hideThread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            flip(thisCardView, thisCard);
-            flip(lastCardView, lastCard);
-        }
-    });
 
     public Board(Resources resources, Integer[] drawables, Integer cardBack, CoolImageFlipper flipper) {
         this.drawables = drawables;
@@ -72,7 +61,6 @@ public class Board {
     }
 
     public void setCards() {
-
         for(int i = 0; i < drawables.length ; i++){
             values[i*2] = drawables[i];
             values[(i*2)+1] = drawables[i];
@@ -91,39 +79,46 @@ public class Board {
 
     public boolean select(View v,int pos){
         boolean win = false;
-        thisCard = cards[pos];
-        thisCardView = v;
-        if (!thisCard.isSelected()){
-            flip(thisCardView, thisCard);
-            win = check();
-            lastCard = thisCard;
-            lastCardView = thisCardView;
-            points++;
+        if(canClick) {
+            thisCard = cards[pos];
+            thisCardView = v;
+            if (!thisCard.isSelected()) {
+                flip(thisCardView, thisCard);
+                win = check();
+                if (!mustWait) {
+                    lastCard = thisCard;
+                    lastCardView = thisCardView;
+                }
+
+                mustWait = true;
+                points++;
+            }
         }
         return win;
     }
 
     private boolean check() {
         boolean win = false;
-        if((lastCard.getValue() != 0) && !isFirst) {
+        if(!isFirst) {
+            canClick = false;
             if (lastCard.getValue() == thisCard.getValue()) {
                 matchedPairs++;
             } else {
-
-                // TODO: metodo que nos dijo Hus
-/*                new Handler().postDelayed(new Runnable() {
+                new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         flip(thisCardView, thisCard);
                         flip(lastCardView, lastCard);
+                        canClick = true;
+                        mustWait = false;
                     }
-                }, 1000);*/
-
-                hideThread.start();
+                }, 1000);
             }
             if (matchedPairs == (values.length/2)){
                 win = true;
             }
+        }else{
+            mustWait = false;
         }
         isFirst = !isFirst;
         return win;
