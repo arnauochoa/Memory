@@ -4,21 +4,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.material.joanbarroso.flipper.CoolImageFlipper;
 
-import java.util.List;
-
-import butterknife.BindViews;
-import butterknife.OnClick;
-
 public class EasyMemory extends AppCompatActivity implements View.OnClickListener{
 
     int pairs = 8;
-    int points;
+    int attempts;
 
     boolean win = false;
 
@@ -27,8 +22,10 @@ public class EasyMemory extends AppCompatActivity implements View.OnClickListene
 
     CoolImageFlipper flipper;
 
-    ImageView card0, card1, card2, card3, card4, card5, card6, card7, card8, card9, card10,
-            card11, card12, card13, card14, card15;
+    ImageView[] cards = new ImageView[2*pairs];
+
+    ImageView restart;
+    TextView attemptsView;
 
     Board board;
 
@@ -37,41 +34,31 @@ public class EasyMemory extends AppCompatActivity implements View.OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_easy_memory);
 
+        restart = (ImageView)findViewById(R.id.restart);
+        restart.setOnClickListener(this);
 
+        attemptsView = (TextView) findViewById(R.id.attempts);
 
-        card0 = (ImageView) findViewById(R.id.card0);
-        card1 = (ImageView) findViewById(R.id.card1);
-        card2 = (ImageView) findViewById(R.id.card2);
-        card3 = (ImageView) findViewById(R.id.card3);
-        card4 = (ImageView) findViewById(R.id.card4);
-        card5 = (ImageView) findViewById(R.id.card5);
-        card6 = (ImageView) findViewById(R.id.card6);
-        card7 = (ImageView) findViewById(R.id.card7);
-        card8 = (ImageView) findViewById(R.id.card8);
-        card9 = (ImageView) findViewById(R.id.card9);
-        card10 = (ImageView) findViewById(R.id.card10);
-        card11 = (ImageView) findViewById(R.id.card11);
-        card12 = (ImageView) findViewById(R.id.card12);
-        card13 = (ImageView) findViewById(R.id.card13);
-        card14 = (ImageView) findViewById(R.id.card14);
-        card15 = (ImageView) findViewById(R.id.card15);
+        cards[0] = (ImageView) findViewById(R.id.card0);
+        cards[1] = (ImageView) findViewById(R.id.card1);
+        cards[2] = (ImageView) findViewById(R.id.card4);
+        cards[3] = (ImageView) findViewById(R.id.card5);
+        cards[4] = (ImageView) findViewById(R.id.card2);
+        cards[5] = (ImageView) findViewById(R.id.card3);
+        cards[6] = (ImageView) findViewById(R.id.card6);
+        cards[7] = (ImageView) findViewById(R.id.card7);
+        cards[8] = (ImageView) findViewById(R.id.card8);
+        cards[9] = (ImageView) findViewById(R.id.card9);
+        cards[10] = (ImageView) findViewById(R.id.card10);
+        cards[11] = (ImageView) findViewById(R.id.card11);
+        cards[12] = (ImageView) findViewById(R.id.card12);
+        cards[13] = (ImageView) findViewById(R.id.card13);
+        cards[14] = (ImageView) findViewById(R.id.card14);
+        cards[15] = (ImageView) findViewById(R.id.card15);
 
-        card0.setOnClickListener(this);
-        card1.setOnClickListener(this);
-        card2.setOnClickListener(this);
-        card3.setOnClickListener(this);
-        card4.setOnClickListener(this);
-        card5.setOnClickListener(this);
-        card6.setOnClickListener(this);
-        card7.setOnClickListener(this);
-        card8.setOnClickListener(this);
-        card9.setOnClickListener(this);
-        card10.setOnClickListener(this);
-        card11.setOnClickListener(this);
-        card12.setOnClickListener(this);
-        card13.setOnClickListener(this);
-        card14.setOnClickListener(this);
-        card15.setOnClickListener(this);
+        for (ImageView cardView : cards){
+            cardView.setOnClickListener(this);
+        }
 
         cardBack = R.drawable.ic_black_jack;
 
@@ -86,7 +73,7 @@ public class EasyMemory extends AppCompatActivity implements View.OnClickListene
 
         flipper = new CoolImageFlipper(this);
 
-        board = new Board(getResources(), drawables, cardBack, flipper);
+        board = new Board(getResources(), drawables, cardBack, flipper, attemptsView);
     }
 
     public void onClick (View v) {
@@ -139,12 +126,22 @@ public class EasyMemory extends AppCompatActivity implements View.OnClickListene
             case R.id.card15:
                 win = board.select(v, 15);
                 break;
+            case R.id.restart:
+                restart();
+                break;
         }
 
         if (win){
-            points = board.getPoints();
-            Toast.makeText(getApplicationContext(), "Congratulations! You did it in " + String.valueOf(points) + " trials", Toast.LENGTH_LONG).show();
+            attempts = board.getAttempts();
+            Toast.makeText(getApplicationContext(), "Congratulations! You did it in " + String.valueOf(attempts) + " attempts", Toast.LENGTH_LONG).show();
             Log.d("WIN","CONGRATULATIONS!!");
         }
+    }
+
+    private void restart() {
+        board.hideCards(cards);
+        board = new Board(getResources(), drawables, cardBack, flipper, attemptsView);
+        win = false;
+        attempts = 0;
     }
 }

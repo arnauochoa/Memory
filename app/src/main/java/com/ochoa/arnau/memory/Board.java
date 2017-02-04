@@ -1,11 +1,10 @@
 package com.ochoa.arnau.memory;
 
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.material.joanbarroso.flipper.CoolImageFlipper;
 
@@ -18,7 +17,7 @@ import java.util.List;
  */
 public class Board {
 
-    private int points, matchedPairs;
+    private int attempts, matchedPairs;
     private boolean isFirst = true;
     private boolean mustWait = true;
     private boolean canClick = true;
@@ -34,19 +33,23 @@ public class Board {
 
     private CoolImageFlipper flipper;
     private Resources resources;
+    TextView attemptsView;
 
     private Integer cardBack;
     private Integer[] drawables; //Array with all drawables id
     private Integer[] values; //Drawables after duplicate values and shuffle
 
 
-    public Board(Resources resources, Integer[] drawables, Integer cardBack, CoolImageFlipper flipper) {
+    public Board(Resources resources, Integer[] drawables, Integer cardBack,
+                 CoolImageFlipper flipper, TextView attemptsView) {
         this.drawables = drawables;
         this.flipper = flipper;
         this.resources = resources;
         this.cardBack = cardBack;
+        this.attemptsView = attemptsView;
 
-        points = 0;
+        attempts = 0;
+        attemptsView.setText(String.valueOf(attempts));
         matchedPairs = 0;
 
         pairs = drawables.length;
@@ -56,8 +59,8 @@ public class Board {
         setCards();
     }
 
-    public int getPoints() {
-        return points;
+    public int getAttempts() {
+        return attempts;
     }
 
     public void setCards() {
@@ -99,7 +102,8 @@ public class Board {
         boolean win = false;
         if(!isFirst) {
             canClick = false;
-            points++;
+            attempts++;
+            attemptsView.setText(String.valueOf(attempts));
             if (lastCard.getValue() == thisCard.getValue()) {
                 matchedPairs++;
                 canClick = true;
@@ -131,5 +135,11 @@ public class Board {
             flipper.flipImage(resources.getDrawable(card.getValue()), (ImageView) v);
         }
         card.setSelected(!card.isSelected());
+    }
+
+    public void hideCards (View[] cardViews) {
+        for (int i = 0; i < pairs * 2; i++) {
+            flipper.flipImage(resources.getDrawable(cardBack), (ImageView) cardViews[i]);
+        }
     }
 }
